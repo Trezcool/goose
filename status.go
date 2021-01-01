@@ -2,6 +2,7 @@ package goose
 
 import (
 	"database/sql"
+	"io/fs"
 	"path/filepath"
 	"time"
 
@@ -9,9 +10,9 @@ import (
 )
 
 // Status prints the status of all migrations.
-func Status(db *sql.DB, dir string) error {
+func Status(db *sql.DB, fsys fs.FS, dir string) error {
 	// collect all migrations
-	migrations, err := CollectMigrations(dir, minVersion, maxVersion)
+	migrations, err := CollectMigrations(fsys, dir, minVersion, maxVersion)
 	if err != nil {
 		return errors.Wrap(err, "failed to collect migrations")
 	}

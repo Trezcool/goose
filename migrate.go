@@ -3,6 +3,7 @@ package goose
 import (
 	"database/sql"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -143,15 +144,26 @@ func AddNamedMigration(filename string, up func(*sql.Tx) error, down func(*sql.T
 
 // CollectMigrations returns all the valid looking migration scripts in the
 // migrations folder and go func registry, and key them by version.
-func CollectMigrations(dirpath string, current, target int64) (Migrations, error) {
-	if _, err := os.Stat(dirpath); os.IsNotExist(err) {
+func CollectMigrations(fsys fs.FS, dirpath string, current, target int64) (Migrations, error) {
+	var err error
+	if fsys != nil {
+		_, err = fs.Stat(fsys, dirpath)
+	} else {
+		_, err = os.Stat(dirpath)
+	}
+	if os.IsNotExist(err) {
 		return nil, fmt.Errorf("%s directory does not exist", dirpath)
 	}
 
 	var migrations Migrations
 
 	// SQL migration files.
-	sqlMigrationFiles, err := filepath.Glob(dirpath + "/*.sql")
+	var sqlMigrationFiles []string
+	if fsys != nil {
+		sqlMigrationFiles, err = fs.Glob(fsys, dirpath+"/*.sql")
+	} else {
+		sqlMigrationFiles, err = filepath.Glob(dirpath + "/*.sql")
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +190,12 @@ func CollectMigrations(dirpath string, current, target int64) (Migrations, error
 	}
 
 	// Go migration files
-	goMigrationFiles, err := filepath.Glob(dirpath + "/*.go")
+	var goMigrationFiles []string
+	if fsys != nil {
+		goMigrationFiles, err = fs.Glob(fsys, dirpath+"/*.go")
+	} else {
+		goMigrationFiles, err = filepath.Glob(dirpath + "/*.go")
+	}
 	if err != nil {
 		return nil, err
 	}

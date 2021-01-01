@@ -2,11 +2,12 @@ package goose
 
 import (
 	"database/sql"
+	"io/fs"
 )
 
 // UpTo migrates up to a specific version.
-func UpTo(db *sql.DB, dir string, version int64) error {
-	migrations, err := CollectMigrations(dir, minVersion, version)
+func UpTo(db *sql.DB, fsys fs.FS, dir string, version int64) error {
+	migrations, err := CollectMigrations(fsys, dir, minVersion, version)
 	if err != nil {
 		return err
 	}
@@ -33,13 +34,13 @@ func UpTo(db *sql.DB, dir string, version int64) error {
 }
 
 // Up applies all available migrations.
-func Up(db *sql.DB, dir string) error {
-	return UpTo(db, dir, maxVersion)
+func Up(db *sql.DB, fsys fs.FS, dir string) error {
+	return UpTo(db, fsys, dir, maxVersion)
 }
 
 // UpByOne migrates up by a single version.
-func UpByOne(db *sql.DB, dir string) error {
-	migrations, err := CollectMigrations(dir, minVersion, maxVersion)
+func UpByOne(db *sql.DB, fsys fs.FS, dir string) error {
+	migrations, err := CollectMigrations(fsys, dir, minVersion, maxVersion)
 	if err != nil {
 		return err
 	}

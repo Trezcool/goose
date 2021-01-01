@@ -3,16 +3,17 @@ package goose
 import (
 	"database/sql"
 	"fmt"
+	"io/fs"
 )
 
 // Down rolls back a single migration from the current version.
-func Down(db *sql.DB, dir string) error {
+func Down(db *sql.DB, fsys fs.FS, dir string) error {
 	currentVersion, err := GetDBVersion(db)
 	if err != nil {
 		return err
 	}
 
-	migrations, err := CollectMigrations(dir, minVersion, maxVersion)
+	migrations, err := CollectMigrations(fsys, dir, minVersion, maxVersion)
 	if err != nil {
 		return err
 	}
@@ -26,8 +27,8 @@ func Down(db *sql.DB, dir string) error {
 }
 
 // DownTo rolls back migrations to a specific version.
-func DownTo(db *sql.DB, dir string, version int64) error {
-	migrations, err := CollectMigrations(dir, minVersion, maxVersion)
+func DownTo(db *sql.DB, fsys fs.FS, dir string, version int64) error {
+	migrations, err := CollectMigrations(fsys, dir, minVersion, maxVersion)
 	if err != nil {
 		return err
 	}

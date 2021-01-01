@@ -2,6 +2,7 @@ package goose
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,8 +10,8 @@ import (
 
 const seqVersionTemplate = "%05v"
 
-func Fix(dir string) error {
-	migrations, err := CollectMigrations(dir, minVersion, maxVersion)
+func Fix(fsys fs.FS, dir string) error {
+	migrations, err := CollectMigrations(fsys, dir, minVersion, maxVersion)
 	if err != nil {
 		return err
 	}

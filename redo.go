@@ -2,16 +2,17 @@ package goose
 
 import (
 	"database/sql"
+	"io/fs"
 )
 
 // Redo rolls back the most recently applied migration, then runs it again.
-func Redo(db *sql.DB, dir string) error {
+func Redo(db *sql.DB, fsys fs.FS, dir string) error {
 	currentVersion, err := GetDBVersion(db)
 	if err != nil {
 		return err
 	}
 
-	migrations, err := CollectMigrations(dir, minVersion, maxVersion)
+	migrations, err := CollectMigrations(fsys, dir, minVersion, maxVersion)
 	if err != nil {
 		return err
 	}
