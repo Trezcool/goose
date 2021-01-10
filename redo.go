@@ -22,11 +22,11 @@ func Redo(db *sql.DB, fsys fs.FS, dir string) error {
 		return err
 	}
 
-	if err := current.Down(db); err != nil {
+	if err := current.Down(db, fsys); err != nil {
 		return err
 	}
 
-	if err := current.Up(db); err != nil {
+	if err := current.Up(db, fsys); err != nil {
 		return err
 	}
 

@@ -27,7 +27,7 @@ func UpTo(db *sql.DB, fsys fs.FS, dir string, version int64) error {
 			return err
 		}
 
-		if err = next.Up(db); err != nil {
+		if err = next.Up(db, fsys); err != nil {
 			return err
 		}
 	}
@@ -58,7 +58,7 @@ func UpByOne(db *sql.DB, fsys fs.FS, dir string) error {
 		return err
 	}
 
-	if err = next.Up(db); err != nil {
+	if err = next.Up(db, fsys); err != nil {
 		return err
 	}
 

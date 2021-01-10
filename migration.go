@@ -3,6 +3,7 @@ package goose
 import (
 	"database/sql"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -35,25 +36,31 @@ func (m *Migration) String() string {
 }
 
 // Up runs an up migration.
-func (m *Migration) Up(db *sql.DB) error {
-	if err := m.run(db, true); err != nil {
+func (m *Migration) Up(db *sql.DB, fsys fs.FS) error {
+	if err := m.run(db, fsys, true); err != nil {
 		return err
 	}
 	return nil
 }
 
 // Down runs a down migration.
-func (m *Migration) Down(db *sql.DB) error {
-	if err := m.run(db, false); err != nil {
+func (m *Migration) Down(db *sql.DB, fsys fs.FS) error {
+	if err := m.run(db, fsys, false); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Migration) run(db *sql.DB, direction bool) error {
+func (m *Migration) run(db *sql.DB, fsys fs.FS, direction bool) error {
 	switch filepath.Ext(m.Source) {
 	case ".sql":
-		f, err := os.Open(m.Source)
+		var f fs.File
+		var err error
+		if fsys != nil {
+			f, err = fsys.Open(m.Source)
+		} else {
+			f, err = os.Open(m.Source)
+		}
 		if err != nil {
 			return errors.Wrapf(err, "ERROR %v: failed to open SQL migration file", filepath.Base(m.Source))
 		}

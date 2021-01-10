@@ -24,7 +24,7 @@ func Reset(db *sql.DB, fsys fs.FS, dir string) error {
 		if !statuses[migration.Version] {
 			continue
 		}
-		if err = migration.Down(db); err != nil {
+		if err = migration.Down(db, fsys); err != nil {
 			return errors.Wrap(err, "failed to db-down")
 		}
 	}

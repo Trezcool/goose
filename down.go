@@ -23,7 +23,7 @@ func Down(db *sql.DB, fsys fs.FS, dir string) error {
 		return fmt.Errorf("no migration %v", currentVersion)
 	}
 
-	return current.Down(db)
+	return current.Down(db, fsys)
 }
 
 // DownTo rolls back migrations to a specific version.
@@ -50,7 +50,7 @@ func DownTo(db *sql.DB, fsys fs.FS, dir string, version int64) error {
 			return nil
 		}
 
-		if err = current.Down(db); err != nil {
+		if err = current.Down(db, fsys); err != nil {
 			return err
 		}
 	}
